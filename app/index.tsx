@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
-
+// Storing required pokemon data from API
 interface Pokemon {
   name: string;
   image: string;
@@ -10,6 +10,7 @@ interface Pokemon {
   types: PokemonType[];
 }
 
+// Storing required pokemon type data from API
 interface PokemonType {
   type: {
     name: string;
@@ -17,7 +18,7 @@ interface PokemonType {
   };
 }
 
-
+// Colour for each pokemon type, hash lookup for each type
 const colorsByType: Record<string, string> = {
   normal: "#A8A77A",
   fire: "#EE8130",
@@ -40,25 +41,29 @@ const colorsByType: Record<string, string> = {
 };
 
 
-
+// Main component for the home screen
 export default function Index() {
 
+  // Storing the pokemon data in the state (current state, setState function, default value)
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
-  console.log(JSON.stringify(pokemons[0], null, 2));
 
+  // useEffect hook to fetch the pokemon data when the component is mounted
   useEffect(() => {
-    // fetch pokemon
     fetchPokemons()
-  }, [])
+  }, []) // Empty array means run only once when the component is mounted
+
 
   async function fetchPokemons() {
     try {
+      // Fetching the pokemon data from the API
       const response = await fetch(
         "https://pokeapi.co/api/v2/pokemon/?limit=10"
       );
+      // Converting the response to JSON
       const data = await response.json();
 
+      // Fetching the detailed pokemon data from const data
       const detailedPokemons = await Promise.all(
         data.results.map(async (pokemon: any) => {
           const res = await fetch(pokemon.url);
