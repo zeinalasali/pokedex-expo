@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View, StyleSheet, Pressable } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 
 interface Pokemon {
@@ -89,28 +89,29 @@ export default function Index() {
         <Link 
             key={pokemon.name} 
             href={{ pathname: "/details", params: {name : pokemon.name}}}
-            style={{
-            // @ts-ignore
-            backgroundColor: colorsByType[pokemon.types[0].type.name] + 50,
-            padding: 20, 
-            borderRadius: 20,
-          }}
+            style={[
+              {
+                // @ts-ignore
+                backgroundColor: colorsByType[pokemon.types[0].type.name] + 50,
+                padding: 20, 
+                borderRadius: 20,
+              },
+              styles.linkContainer
+            ]}
         >
 
-          <View>
+          <View style={styles.container}>
             <Text style = {styles.name}>{pokemon.name}</Text>
             <Text style = {styles.type}>{pokemon.types[0].type.name}</Text>
 
-            <View style={{
-              flexDirection: "row",
-            }}>
+            <View style={styles.imageContainer}>
               <Image 
                 source ={{uri: pokemon.image}}
-                style={{width: 150, height: 150}}
+                style={styles.image}
                 />
               <Image 
                 source ={{uri: pokemon.imageBack}}
-                style={{width: 150, height: 150}}
+                style={styles.image}
                 />
             </View>
         </View>
@@ -122,6 +123,15 @@ export default function Index() {
 
 
 const styles = StyleSheet.create({
+  linkContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   name: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -132,5 +142,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'gray',
     textAlign: "center",
+  },
+  imageContainer: {
+    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  image: {
+    width: 150,
+    height: 150,
   }
 })
