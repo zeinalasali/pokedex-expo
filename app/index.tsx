@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 // Storing required pokemon data from API
 interface Pokemon {
@@ -46,6 +46,8 @@ export default function Index() {
 
   // Storing the pokemon data in the state (current state, setState function, default value)
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [visibleCount, setVisibleCount] = useState<number>(20);
 
 
   // useEffect hook to fetch the pokemon data when the component is mounted
@@ -58,7 +60,7 @@ export default function Index() {
     try {
       // Fetching the pokemon data from the API
       const response = await fetch(
-        "https://pokeapi.co/api/v2/pokemon/?limit=10"
+        "https://pokeapi.co/api/v2/pokemon?limit=1000"
       );
       // Converting the response to JSON
       const data = await response.json();
@@ -83,14 +85,44 @@ export default function Index() {
     }
   }
 
+  // Filter Pokemon based on search query
+  const filteredPokemons = pokemons.filter((pokemon) =>
+    pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get visible Pokemon based on pagination
+  const visiblePokemons = filteredPokemons.slice(0, visibleCount);
+  const hasMore = filteredPokemons.length > visibleCount;
+
+  // Reset visible count when search changes
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [searchQuery]);
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 20);
+  };
+
   return (
-    <ScrollView
-      contentContainerStyle={{
-        gap: 16,
-        padding: 16,
-      }}
-    >
-      {pokemons.map((pokemon) => (
+    <View style={styles.mainContainer}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search Pokemon..."
+          placeholderTextColor="#999"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      <ScrollView
+        contentContainerStyle={{
+          gap: 16,
+          padding: 16,
+        }}
+      >
+        {visiblePokemons.map((pokemon) => (
         <Link 
             key={pokemon.name} 
             href={{ pathname: "/details", params: {name : pokemon.name}}}
@@ -121,13 +153,45 @@ export default function Index() {
             </View>
         </View>
         </Link>
-      ))}
-    </ScrollView>
+        ))}
+
+        {/* Load More Button */}
+        {hasMore && (
+          <Pressable style={styles.loadMoreButton} onPress={handleLoadMore}>
+            <Text style={styles.loadMoreText}>Load More</Text>
+          </Pressable>
+        )}
+
+        {visiblePokemons.length === 0 && searchQuery && (
+          <View style={styles.noResultsContainer}>
+            <Text style={styles.noResultsText}>No Pokemon found matching "{searchQuery}"</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
+  searchContainer: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  searchInput: {
+    height: 44,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
   linkContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -158,5 +222,30 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
-  }
+  },
+  loadMoreButton: {
+    backgroundColor: "#4A90E2",
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  loadMoreText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noResultsContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: 'center',
+  },
 })
