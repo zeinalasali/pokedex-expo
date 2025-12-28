@@ -131,12 +131,3 @@ Designed as a **portfolio-ready mobile app** suitable for:
 - Software Engineering co-op positions
 
 ---
-
-## ▶️ Getting Started
-
-```bash
-git clone https://github.com/your-username/pokedex-expo.git
-cd pokedex-expo
-npm install
-npx expo start
-```
